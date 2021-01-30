@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# 获取Jenkins传入的Proxy参数
-while getopts ":Proxy:" opt
+# 获取Jenkins传入的Proxy参数。执行方式sh auto_stress_test.sh -a true，其中true可以通过Jenkins自定义变量传入
+while getopts ":a:" opt
 do
     case $opt in
-        Proxy)
+        a)
         echo "参数Proxy的值$OPTARG"
+        export proxy=$OPTARG
         ;;
         ?)
         echo "未知参数"
@@ -45,8 +46,9 @@ do
     fi
 
     # Jenkins中加入代理参数，根据参数决定是否生成带代理的脚本
-    if [[ "$OPTARG" == "true" ]]; then
-    sed -i "s/<\/HTTPSamplerProxy>/  <stringProp name=\"HTTPSampler.proxyHost\">localhost<\/stringProp>\n          <stringProp name=\"HTTPSampler.proxyPort\">8888<\/stringProp>\n        <\/HTTPSamplerProxy>/g" ${jmx_filename}
+    if [[ "$proxy" == "true" ]]; then
+        echo "${jmx_filename} 正在生成带proxy的jmx脚本"
+        sed -i "s/<\/HTTPSamplerProxy>/  <stringProp name=\"HTTPSampler.proxyHost\">localhost<\/stringProp>\n          <stringProp name=\"HTTPSampler.proxyPort\">8888<\/stringProp>\n        <\/HTTPSamplerProxy>/g" ${jmx_filename}
     fi
 
     # JMeter 静默压测
@@ -55,6 +57,7 @@ do
     # 生成Web压测报告
     ${jmeter_path}/bin/jmeter -g ${jtl_filename} -e -o ${web_report_path_name}
 
+    # 清除脚本
     rm -f ${jmx_filename} ${jtl_filename}
 done
 echo "自动化压测全部结束"
