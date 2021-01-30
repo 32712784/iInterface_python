@@ -8,7 +8,7 @@ do
         ;;
         ?)
         echo "未知参数"
-        exit 1;;
+        ;;
     esac
 done
 
