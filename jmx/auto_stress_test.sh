@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+# 获取Jenkins传入的Proxy参数
+while getopts ":Proxy:" opt
+do
+    case $opt in
+        Proxy)
+        echo "参数Proxy的值$OPTARG"
+        ;;
+        ?)
+        echo "未知参数"
+        exit 1;;
+    esac
+done
 
 # 压测脚本模板中设定的压测时间应为60秒
 export jmx_template="iInterface"
@@ -33,7 +45,7 @@ do
     fi
 
     # Jenkins中加入代理参数，根据参数决定是否生成带代理的脚本
-    if [[ "${Proxy}" == "true" ]]; then
+    if [[ "$OPTARG" == "true" ]]; then
     sed -i "s/<\/HTTPSamplerProxy>/  <stringProp name=\"HTTPSampler.proxyHost\">localhost<\/stringProp>\n          <stringProp name=\"HTTPSampler.proxyPort\">8888<\/stringProp>\n        <\/HTTPSamplerProxy>/g" ${jmx_filename}
     fi
 
