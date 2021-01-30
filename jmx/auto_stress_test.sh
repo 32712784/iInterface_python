@@ -32,6 +32,11 @@ do
         sed -i "s/thread_num/${num}/g" ${jmx_filename}
     fi
 
+    # Jenkins中加入代理参数，根据参数决定是否生成带代理的脚本
+    if [[ "${Proxy}" == "true" ]]; then
+    sed -i "s/<\/HTTPSamplerProxy>/  <stringProp name=\"HTTPSampler.proxyHost\">localhost<\/stringProp>\n          <stringProp name=\"HTTPSampler.proxyPort\">8888<\/stringProp>\n        <\/HTTPSamplerProxy>/g" ${jmx_filename}
+    fi
+
     # JMeter 静默压测
     ${jmeter_path}/bin/jmeter -n -t ${jmx_filename} -l ${jtl_filename}
 
